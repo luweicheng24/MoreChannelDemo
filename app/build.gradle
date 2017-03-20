@@ -1,0 +1,79 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "com.ovov.www.morechanneldemo"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled = true  //突破应用方法数65535
+        manifestPlaceholders = [UMENG_CHANNEL_ID:"umeng"]
+    }
+    //添加签名文件
+    signingConfigs {
+        debug{
+        }
+        release {
+            keyAlias 'channel'
+            keyPassword '123456'
+            storeFile file('channel.jks')
+            storePassword '123456'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationVariants.all{
+                variants -> variants.outputs.each {
+                    output -> def outputFile = output.outputFile
+                        if(outputFile!=null && outputFile.name.endsWith(".apk")){
+                            def fileName = "${variants.productFlavors[0].name}"+".apk"
+                            output.outputFile = new File(outputFile.parentFile,fileName);
+                        }
+
+                }
+            }
+        }
+
+    }
+    /**
+     * 添加多渠道市场
+     */
+  productFlavors{
+
+
+      xiaomi{
+       //   manifestPlaceholders = [UMENG_CHANNEL_ID: "xiaomi"]
+      }
+
+      wandoujia{
+         // manifestPlaceholders = [UMENG_CHANNEL_ID: "wandoujia"]
+      }
+
+  }
+
+   productFlavors.all{
+       flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_ID: name]
+
+   }
+
+
+
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.2.0'
+    testCompile 'junit:junit:4.12'
+    compile 'com.umeng.analytics:analytics:latest.integration'
+}
